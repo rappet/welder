@@ -1,67 +1,55 @@
 #[macro_use]
 extern crate log;
 extern crate env_logger;
+extern crate clap;
 extern crate serde;
 extern crate toml;
 extern crate serde_json;
 
+use clap::{App, load_yaml};
+
 use std::env;
 
-const NAME: &'static str = env!("CARGO_PKG_NAME");
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+pub const NAME: &'static str = env!("CARGO_PKG_NAME");
+pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+pub const DESCRIPTION: &'static str = env!("CARGO_PKG_DESCRIPTION");
+pub const AUTHORS: &'static str = env!("CARGO_PKG_AUTHORS");
 
 mod module;
 mod conf;
+mod commands;
 
-fn init_envlogger() {
-    // overwrite RUST_LOG if not set to show informational log
-    if env::var_os("RUST_LOG").is_none() {
-        env::set_var("RUST_LOG", "welder=info");
+fn init_envlogger(verbosity: u64) {
+    // set RUST_LOG if --verbose flag is set or
+    // overwrite RUST_LOG if not set to show warning log
+    if verbosity > 0 || env::var_os("RUST_LOG").is_none() {
+        let level = match verbosity {
+            0 => "warn",
+            1 => "info",
+            _ => "debug"
+        };
+        env::set_var("RUST_LOG", format!("welder={}", level));
     }
     env_logger::init();
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    init_envlogger();
+    let matches = App::from(load_yaml!("cli.yml"))
+        .name(NAME)
+        .version(VERSION)
+        .about(DESCRIPTION)
+        .author(AUTHORS)
+        .get_matches();
 
-    info!("Running {} version {}", NAME, VERSION);
+    let verbosity = matches.occurrences_of("verbose");
 
-    let s = r#"
-[vars]
-name = 'Waldi Welder'
+    init_envlogger(verbosity);
 
-[vars.network]
-ip = '192.168.1.102/24'
-gateway = '192.168.1.1'
-
-[vars.network.dns]
-# Quad9 public DNS resolver
-primary4 = '9.9.9.9'
-secondary4 = '149.112.112.112'
-primary6 = '2620:fe::fe'
-secondary6 = '2620:fe::9'
-
-[[task]]
-name = 'Load foo'
-module = 'var'
-
-value = 'Hello, {{ name }}!'
-
-requires = 'name'
-yields = 'message'
-
-[[task]]
-name = 'Debug message'
-module = 'debug'
-
-value = '{{ message }}'
-
-requires = 'message'
-"#;
-
-    let role: conf::Role = toml::from_str(s)?;
-
-    info!("Parsed: {}", serde_json::to_string_pretty(&role)?);
+    match matches.subcommand() {
+        ("version", Some(matches)) => commands::version::version_command(matches),
+        ("check", Some(matches)) => commands::check::check_command(matches)?,
+        _ => unimplemented!()
+    }
 
     Ok(())
 }

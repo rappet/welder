@@ -1,0 +1,22 @@
+name: welder
+settings:
+  - ArgRequiredElseHelp
+args:
+  - verbose:
+      short: v
+      multiple: true
+      about: Sets the level of verbosity
+      takes_value: false
+subcommands:
+  - version:
+      about: displays current version
+  - check:
+      about: parses the given config file and displays errors
+      args:
+        - config:
+            short: c
+            long: config
+            value_name: CONFIG
+            about: Sets the config file
+            takes_value: true
+            required: true
