@@ -14,8 +14,6 @@ subcommands:
       about: parses the given config file and displays errors
       args:
         - config:
-            short: c
-            long: config
             value_name: CONFIG
             about: Sets the config file
             takes_value: true
