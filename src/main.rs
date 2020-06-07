@@ -18,6 +18,10 @@ pub const AUTHORS: &'static str = env!("CARGO_PKG_AUTHORS");
 mod module;
 mod conf;
 mod commands;
+mod types;
+
+#[cfg(test)]
+mod tests;
 
 fn init_envlogger(verbosity: u64) {
     // set RUST_LOG if --verbose flag is set or
