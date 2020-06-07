@@ -5,6 +5,7 @@ use std::error::Error;
 use std::path::Path;
 
 use std::fs;
+use crate::types::TaskIdentifier;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Role {
@@ -30,14 +31,14 @@ impl Role {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(untagged)]
-pub enum StringOrVec {
-    String(String),
-    Vec(Vec<String>)
+pub enum UnitOrVec<T> {
+    String(T),
+    Vec(Vec<T>)
 }
 
-impl Default for StringOrVec {
-    fn default() -> StringOrVec {
-        StringOrVec::Vec(Vec::new())
+impl<T> Default for UnitOrVec<T> {
+    fn default() -> UnitOrVec<T> {
+        UnitOrVec::Vec(Vec::new())
     }
 }
 
@@ -59,7 +60,7 @@ pub struct Task {
     pub params: toml::value::Table,
 
     #[serde(default)]
-    pub require: StringOrVec,
+    pub require: UnitOrVec<TaskIdentifier>,
     #[serde(default)]
-    pub yields: StringOrVec,
+    pub notify: UnitOrVec<TaskIdentifier>,
 }
