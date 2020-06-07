@@ -4,7 +4,7 @@ use std::fmt;
 use serde::export::Formatter;
 use serde::export::fmt::Error;
 use crate::conf::Task;
-use serde::{Serialize, Serializer};
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
 use serde::de::{self, Visitor};
 
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
@@ -137,5 +137,14 @@ impl<'de> Visitor<'de> for TaskIdentifierVisitor {
         Ok(v.parse().map_err(|e: ParseTaskIdentifierError| {
             E::custom(e.description())
         })?)
+    }
+}
+
+impl<'de> Deserialize<'de> for TaskIdentifier {
+    fn deserialize<D>(deserializer: D) -> Result<TaskIdentifier, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_str(TaskIdentifierVisitor)
     }
 }
