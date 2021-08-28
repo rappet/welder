@@ -52,15 +52,15 @@ pub struct Var {
     var_type: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq)]
 pub struct Task {
     pub description: Option<String>,
 
     #[serde(default = "empty_toml_table", flatten)]
-    pub params: toml::value::Table,
+    pub params: serde_json::Value,
 
     #[serde(default)]
-    pub require: UnitOrVec<TaskIdentifier>,
+    pub require: Vec<TaskIdentifier>,
     #[serde(default)]
-    pub notify: UnitOrVec<TaskIdentifier>,
+    pub notify: Vec<TaskIdentifier>,
 }

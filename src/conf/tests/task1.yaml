@@ -1,0 +1,30 @@
+# system install
+apt:
+  update: true
+  install:
+    - python3
+    - python3-pip
+    - build-essential
+    - curl
+    - neovim
+    - zsh
+
+# app install
+pip3:
+  install:
+    - numpy
+    - python-snappy
+
+write-files:
+  /foo.txt:
+    chmod: '0644'
+    content: >
+      # Managed by welder
+      Hello World!
+    completes: config
+  /root/.zshrc:
+    content: >
+      echo "Hello, World!"
+    require:
+      - apt: zsh
+    completes: config

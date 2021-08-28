@@ -30,9 +30,9 @@ value = "Hello, {{yield.name}}, your IP is {{http-get.ip.response}}!"
 [tasks.debug.message]
 value = "{{yield.message}}"
 
-[tasks.template_file."~/hello.txt"]
+[tasks.template-file."~/hello.txt"]
 content = """
 {{yield.message}}
 """
 require = ["apt_current.greetd", "service_enabled.greetd"]
-notify = "service_reloaded.greetd"
+notify = ["service_reloaded.greetd"]

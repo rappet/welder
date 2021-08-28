@@ -1,0 +1,47 @@
+# Welder Role
+version: 0
+
+module:
+  name: Setup Greetd
+  description: 'An example '
+
+vars:
+  name:
+    description: Name of the person to greet
+    type: string
+
+yields:
+  value: {{yield.name}}
+
+locals:
+  name: Waldi Welder
+
+tasks:
+  http-get:
+    ip:
+      url: https://some-geo-ip-tool.com/
+      encoding: json
+      charset: utf8
+
+  yield:
+    name:
+      value:  '{{#if vars.name}}{{vars.name}}{{end}}{{locals.name}}{{/if}}'
+    message:
+      value: 'Hello, {{yield.name}}, your IP is {{http-get.ip.response}}!'
+
+  debug:
+    message:
+      value: '{{yield.message}}'
+
+  write-files:
+    - name: ~/hello.txt
+      content: >
+        {{yield.message}}
+      require:
+        - apt-current.greetd
+        - service-enabled.greetd
+      notify:
+        - service-reloaded.greetd
+  apt-install:
+    - 'bash'
+    - 'zsh'
